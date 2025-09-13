@@ -32,7 +32,7 @@ ________________________________________
   },
 
   "ml_api": {
-    "endpoint": "https://aignal.tech/chart-data-btc-usdt-1h", // URL к вашему ML API, который отдаёт JSON прогноз
+    "endpoint": "https://aignal.tech/chart-data-btc-usdt-1h", // URL к ML API, который отдаёт прогноз
     "poll_interval_seconds": 3600,           // Интервал опроса ML API (секунды). Для часового эндпойнта, который указан выше, 3600 секунд.
     "symbol": "BTC-USDT"                   // Инструмент для торговли (например BTC-USDT)
   },
