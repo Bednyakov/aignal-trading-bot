@@ -104,11 +104,13 @@ class OkxClient:
         url = self.base_url + path
         body = {
             "instId": symbol,
+            "tdMode": "cash",       # обязательно для спота. Для деривативов, маржи, фьючерсов → "cross" или "isolated", нужно выносить в аргументы функции.
             "side": side,
             "ordType": order_type,
-            "sz": str(quantity),
-            "px": str(price) if order_type == "limit" else None
+            "sz": str(quantity)
         }
+        if order_type == "limit":
+            body["px"] = str(price)
         # Удаляем ключ с None
         body = {k: v for k, v in body.items() if v is not None}
         headers = self._headers("POST", path, body)
