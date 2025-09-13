@@ -8,7 +8,8 @@ ________________________________________
 
 - Зарегистрироваться на бирже → [OKX](https://okx.com/join/63825848)
 
-- Получить api_key, secret_key, passphrase
+- Получить api_key, secret_key, passphrase:
+
 ![Пример](https://github.com/Bednyakov/aignal-trading-bot/blob/main/static/okxapi.png)
 
 ________________________________________
