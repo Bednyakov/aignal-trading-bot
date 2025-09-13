@@ -1,0 +1,52 @@
+{
+    "okx": {
+      "api_key": "YOUR_OKX_API_KEY",
+      "secret_key": "YOUR_OKX_SECRET",
+      "passphrase": "YOUR_OKX_PASSPHRASE",
+      "base_url": "https://www.okx.com"
+    },
+  
+    "ml_api": {
+      "endpoint": "https://aignal.tech/chart-data-btc-usdt-1h", 
+      "poll_interval_seconds": 3600,
+      "symbol": "BTC-USDT"
+    },
+  
+    "strategy": {
+      "enabled": true,
+      "mode": "signal",                      
+  
+      "signal_whitelist": ["buy", "sell"],  
+      "min_confidence": 0.6,                
+      "min_profit_after_fee": 0.0005,       
+  
+      "use_expected_price": true,           
+      "order_type": "limit",                
+      "limit_price_slippage": 0.001,        
+  
+      "position_size": {
+        "mode": "percent",                  
+        "percent_of_balance": 0.05,         
+        "fixed_size": null                  
+      },
+  
+      "risk": {
+        "max_exposure_usd": 1000.0,         
+        "max_open_positions": 3
+      },
+  
+      "exit": {
+        "take_profit_pct": 0.01,             
+        "stop_loss_pct": -0.005              
+      },
+  
+      "order_management": {
+        "cancel_if_unfilled_after_sec": 120,
+        "monitor_open_orders_every_sec": 15
+      },
+  
+      "dry_run": true,                      
+      "log_level": "INFO"
+    }
+  }
+  
