@@ -9,7 +9,8 @@
     "ml_api": {
       "endpoint": "https://aignal.tech/chart-data-btc-usdt-1h", 
       "poll_interval_seconds": 3600,
-      "symbol": "BTC-USDT"
+      "symbol": null,
+      "api-key": null
     },
   
     "strategy": {

@@ -30,6 +30,7 @@ class MLTradingBot:
         self.ml_endpoint = config["ml_api"]["endpoint"]
         self.poll_interval = config["ml_api"].get("poll_interval_seconds", 10)
         self.symbol = config["ml_api"].get("symbol", "BTC-USDT")
+        self.api_key = config["ml_api"].get("api-key", "my-api-key")
         self.strategy = config["strategy"]
         self.dry_run = self.strategy.get("dry_run", True)
         self.order_state = {}  # отслеживание активных ордеров в памяти: order_id -> meta Надежнее будет заменить на БД.
@@ -42,7 +43,11 @@ class MLTradingBot:
     # Получить свежий прогноз от ML API
     def fetch_prediction(self) -> Optional[dict]:
         try:
-            resp = requests.get(self.ml_endpoint, params={"symbol": self.symbol}, timeout=10)
+            params = {}
+            if self.symbol is not None:
+                params["symbol"] = self.symbol
+
+            resp = requests.get(self.ml_endpoint, params=params, headers={"X-API-Key": self.api_key}, timeout=10)
             resp.raise_for_status()
             data = resp.json()
             return data
