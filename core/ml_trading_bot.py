@@ -34,6 +34,7 @@ class MLTradingBot:
         self.strategy = config["strategy"]
         self.dry_run = self.strategy.get("dry_run", True)
         self.order_state = {}  # отслеживание активных ордеров в памяти: order_id -> meta Надежнее будет заменить на БД.
+        self.positions = []    # открытые позиции (портфель)
         self.log = logging.getLogger("MLTradingBot")
         self.log.setLevel(getattr(logging, self.strategy.get("log_level", "INFO").upper()))
         ch = logging.StreamHandler()
@@ -194,11 +195,61 @@ class MLTradingBot:
         if placed:
             self.log.info("Order placed: %s", placed)
 
+            # Если это покупка — сохраняем как позицию
+            if side == "buy":
+                pos = {
+                    "posId": placed["ordId"],
+                    "instId": placed["instId"],
+                    "buy_price": float(placed["px"]),
+                    "size": float(placed["sz"]),
+                    "created_at": placed["created_at"],
+                    "state": "open"
+                }
+                self.positions.append(pos)
+                self.log.info("Добавлена новая позиция: %s", pos)
+
             # планируем TP/SL если указаны (будем мониторить исполнение)
             tp = self.strategy.get("exit", {}).get("take_profit_pct")
             sl = self.strategy.get("exit", {}).get("stop_loss_pct")
             if tp or sl:
                 self.log.debug("TP/SL configured (TP=%s SL=%s) — бот будет мониторить позицию.", tp, sl)
+
+
+    def manage_positions(self, pred: dict):
+        """
+        Управляет открытыми позициями.
+        Если текущая цена делает сделку выгодной — закрывает её.
+        """
+        profitable_threshold = self.strategy.get("sell_on_profit_usd", 100)  # прибыль в USD
+        min_return = self.strategy.get("sell_on_return", 0.005)              # доходность (0.5%)
+
+        current_price = float(pred["current_price"])
+        closed_positions = []
+
+        for pos in self.positions:
+            if pos["state"] != "open":
+                continue
+
+            buy_price = pos["buy_price"]
+            size = pos["size"]
+
+            profit = (current_price - buy_price) * size
+            return_pct = (current_price / buy_price - 1)
+
+            if profit >= profitable_threshold or return_pct >= min_return:
+                self.log.info("Условие продажи выполнено для %s: profit=%.2f USDT return=%.2f%% — закрываю позицию.",
+                            pos["instId"], profit, return_pct * 100)
+
+                if not self.dry_run:
+                    self.okx.place_order(self.symbol, "sell", current_price, size, order_type="market")
+
+                pos["state"] = "closed"
+                pos["closed_at"] = now_iso()
+                pos["sell_price"] = current_price
+                pos["profit_usd"] = profit
+                closed_positions.append(pos)
+
+        return closed_positions
 
     # Простое управление открытыми ордерами: отмена через таймаут
     def manage_orders(self):
@@ -223,7 +274,17 @@ class MLTradingBot:
         if not pred:
             return
         self.log.info("Получено предсказание: signal=%s conf=%s pred=%s updated_at=%s", pred.get("signal"), pred.get("confidence"), pred.get("predicted_return"), pred.get("updated_at"))
+        
+        # 1. Логика торговли по сигналу
         self.process_prediction(pred)
+
+        # 2. Управление открытыми позициями
+        closed = self.manage_positions(pred)
+        if closed:
+            for pos in closed:
+                self.log.info("Позиция закрыта: %s", pos)
+
+        # 3. Управление ордерами (таймаут и т.п.)
         self.manage_orders()
 
     def run_loop(self):

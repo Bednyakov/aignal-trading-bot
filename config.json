@@ -15,7 +15,9 @@
   
     "strategy": {
       "enabled": true,
-      "mode": "signal",                      
+      "mode": "signal",
+      "sell_on_profit_usd": 100,
+      "sell_on_return": 0.005,
   
       "signal_whitelist": ["buy", "sell"],  
       "min_confidence": 0.6,                
