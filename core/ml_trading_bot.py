@@ -26,7 +26,7 @@ class MLTradingBot:
     def __init__(self, config: dict):
         self.cfg = config
         okx_cfg = config["okx"]
-        self.okx = OkxClient(okx_cfg["api_key"], okx_cfg["secret_key"], okx_cfg["passphrase"], okx_cfg.get("base_url", "https://www.okx.com"))
+        self.okx = OkxClient(okx_cfg["api_key"], okx_cfg["secret_key"], okx_cfg["passphrase"], okx_cfg.get("base_url", "https://www.okx.com"), okx_cfg.get("simulated_trading", False))
         self.ml_endpoint = config["ml_api"]["endpoint"]
         self.poll_interval = config["ml_api"].get("poll_interval_seconds", 10)
         self.symbol = config["ml_api"].get("symbol", "BTC-USDT")

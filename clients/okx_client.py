@@ -24,11 +24,12 @@ def iso_to_millis(iso_str):
     return int(datetime.fromisoformat(iso_str).timestamp() * 1000)
 
 class OkxClient:
-    def __init__(self, api_key: str, secret_key: str, passphrase: str, base_url: str = "https://www.okx.com"):
+    def __init__(self, api_key: str, secret_key: str, passphrase: str, base_url: str = "https://www.okx.com", simulated_trading: bool = False):
         self.api_key = api_key
         self.secret_key = secret_key.encode()
         self.passphrase = passphrase
         self.base_url = base_url.rstrip('/')
+        self.simulated_trading = simulated_trading
 
     def _get_timestamp(self) -> str:
         now = datetime.utcnow()
@@ -44,13 +45,18 @@ class OkxClient:
         timestamp = self._get_timestamp()
         body_str = json.dumps(body) if body else ""
         sign = self._sign(timestamp, method, request_path, body_str)
-        return {
+        headers = {
             "OK-ACCESS-KEY": self.api_key,
             "OK-ACCESS-SIGN": sign,
             "OK-ACCESS-TIMESTAMP": timestamp,
             "OK-ACCESS-PASSPHRASE": self.passphrase,
             "Content-Type": "application/json"
         }
+    
+        if self.simulated_trading:
+                headers["x-simulated-trading"] = "1"
+        
+        return headers
 
     def get_candles(self, symbol: str, timeframe: str = "1H", limit: int = 200) -> list:
         """

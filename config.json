@@ -3,7 +3,8 @@
       "api_key": "YOUR_OKX_API_KEY",
       "secret_key": "YOUR_OKX_SECRET",
       "passphrase": "YOUR_OKX_PASSPHRASE",
-      "base_url": "https://www.okx.com"
+      "base_url": "https://www.okx.com",
+      "simulated_trading": false
     },
   
     "ml_api": {
