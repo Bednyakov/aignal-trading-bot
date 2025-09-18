@@ -118,6 +118,7 @@ pip install -r requirements.txt
 python main.py
 ```
 Информационный канал проекта c проверкой прогнозов → [Telegram канал](https://t.me/aignal_tech)
+
 По всем вопросам пишите в канал разработчика → [IT POLICE](https://t.me/itpolice)
 
 ________________________________________
